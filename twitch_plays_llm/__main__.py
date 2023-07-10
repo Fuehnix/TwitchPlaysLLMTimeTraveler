@@ -1,6 +1,6 @@
 import asyncio
 import json
-
+# import time
 import openai
 
 from pydantic import BaseModel
@@ -23,9 +23,14 @@ class StoryEntry(BaseModel):
     user_action: str
     narration_result: str
 
+class Proposal(BaseModel):
+    user: str
+    message: str
+    vote: int
+
 
 class StoryGenerator:
-    def __init__(self) -> None:
+    def __init__(self):
         # TODO: Dynamically generate initial prompt
         self.past_story_entries = [
             StoryEntry(
@@ -68,6 +73,30 @@ class StoryGenerator:
         )
         return next_narration
 
+class VoteHandler:
+    def __init__(self):
+        self.proposals: list[Proposal] = []
+    
+    async def add_vote_option(self, username: str, message: str):
+        """"Adds a vote option to the list of proposals. Expects '!voteoption <string>' as a user command"""
+        proposal = Proposal(user=username, message=message, vote=0)
+        print(proposal)
+        self.proposals.append(proposal)
+        return (f'Option {len(self.proposals)} added: {message}')
+    
+    async def add_vote(self, username: str, vote_option: int):
+        """"Adds a vote to a currently existing proposal. Expects '!vote <int>' as a user command"""
+        for idx, proposal in enumerate(self.proposals):
+            if idx == vote_option - 1:
+                proposal.vote += 1
+                return (f'Vote added for option {vote_option}. Current votes: {proposal.vote}')
+        return (f'Vote option not found: {vote_option}')
+
+    def reset(self):
+        """"Clears all vote options"""
+        self.proposals = []
+
+
 
 class Bot(commands.Bot):
     max_message_len = 500  # Twitch has a 500 character limit
@@ -76,9 +105,12 @@ class Bot(commands.Bot):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
         super().__init__(token=client_id, prefix='!', initial_channels=[channel_name])
         self.generator = StoryGenerator()
+        self.vote_handler = VoteHandler()
+        self.background_task = None
 
     async def event_ready(self):
         """Function that runs when bot connects to server"""
+        
         print(f'Logged in as | {self.nick}')
         print(f'User id is | {self.user_id}')
         if self.generator.past_story_entries:
@@ -97,15 +129,37 @@ class Bot(commands.Bot):
         user_action = 'You say "' + self._extract_message_text(ctx) + '"'
         await self._perform_action(user_action, ctx)
 
+    @commands.command()
+    async def vote(self, ctx: commands.Context):
+        await ctx.send(await self.vote_handler.add_vote(ctx.author.name, int(self._extract_message_text(ctx))))
+
     async def _perform_action(self, user_action: str, ctx: commands.Context):
         """Continues the story by performing an action, communicating the result to the channel"""
-        await ctx.send('Generating continuation of story...')
-        narration_result = self.generator.generate_next_story_narration(user_action)
-        while narration_result:
-            suffix = '...' if len(narration_result) >= self.max_message_len else ''
-            await ctx.send(narration_result[: self.max_message_len - 3] + suffix)
-            await asyncio.sleep(2)
-            narration_result = narration_result[self.max_message_len - 3 :]
+        await ctx.send(await self.vote_handler.add_vote_option(ctx.author.name, user_action))
+        if self.background_task is None:
+            self.background_task = asyncio.create_task(self.background_logic(ctx))
+        
+
+    # asyncio.create_task(something to run in the background without awaiting)
+    #self.backgroundTask() = asyncio.create_task()
+    #if self.backgroundTask() is not None:
+    async def background_logic(self, ctx: commands.Context):
+        await asyncio.sleep(10)
+        
+        chosen_action = max(self.vote_handler.proposals, key=lambda x: x.vote)
+        action_index = self.vote_handler.proposals.index(chosen_action)
+        narration_result = self.generator.generate_next_story_narration(chosen_action.message)
+        message = f'Chose action {action_index + 1} ({chosen_action.vote} votes): {chosen_action.message} | {narration_result}'
+        await self._send_chunked(ctx, message)
+        self.vote_handler.reset()
+        self.background_task = None
+    
+    async def _send_chunked(self, ctx: commands.Context, text: str):
+        while text:
+            suffix = '...' if len(text) >= self.max_message_len else ''
+            await ctx.send(text[: self.max_message_len - 3] + suffix)
+            await asyncio.sleep(2.0)
+            text = text[self.max_message_len - 3 :]
 
     @staticmethod
     def _extract_message_text(ctx: commands.Context) -> str:
@@ -114,6 +168,8 @@ class Bot(commands.Bot):
         (ie. "bar baz" from the message "!foo bar baz")
         """
         return ctx.message.content.split(' ', 1)[1]
+    
+    
 
 
 def main():
