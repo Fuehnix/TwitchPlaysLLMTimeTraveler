@@ -1,5 +1,6 @@
 import asyncio
 import json
+
 # import time
 import openai
 
@@ -22,6 +23,7 @@ openai.api_key = openai_api_key
 class StoryEntry(BaseModel):
     user_action: str
     narration_result: str
+
 
 class Proposal(BaseModel):
     user: str
@@ -57,7 +59,10 @@ class StoryGenerator:
                 messages += [{'role': 'user', 'content': story_entry.user_action}]
             if story_entry.narration_result:
                 messages += [
-                    {'role': 'assistant', 'content': story_entry.narration_result}
+                    {
+                        'role': 'assistant',
+                        'content': story_entry.narration_result,
+                    }
                 ]
         messages.append({'role': 'user', 'content': user_action})
         return messages
@@ -65,7 +70,8 @@ class StoryGenerator:
     def generate_next_story_narration(self, user_action: str):
         """Generates the continuation of the story given a user action"""
         response = openai.ChatCompletion.create(
-            model='gpt-3.5-turbo', messages=self.construct_prompt_messages(user_action)
+            model='gpt-3.5-turbo',
+            messages=self.construct_prompt_messages(user_action),
         )
         next_narration = response['choices'][0]['message']['content']
         self.past_story_entries.append(
@@ -73,29 +79,29 @@ class StoryGenerator:
         )
         return next_narration
 
+
 class VoteHandler:
     def __init__(self):
         self.proposals: list[Proposal] = []
-    
+
     async def add_vote_option(self, username: str, message: str):
-        """"Adds a vote option to the list of proposals. Expects '!voteoption <string>' as a user command"""
+        """ "Adds a vote option to the list of proposals. Expects '!voteoption <string>' as a user command"""
         proposal = Proposal(user=username, message=message, vote=0)
         print(proposal)
         self.proposals.append(proposal)
-        return (f'Option {len(self.proposals)} added: {message}')
-    
+        return f'Option {len(self.proposals)} added: {message}'
+
     async def add_vote(self, username: str, vote_option: int):
-        """"Adds a vote to a currently existing proposal. Expects '!vote <int>' as a user command"""
+        """ "Adds a vote to a currently existing proposal. Expects '!vote <int>' as a user command"""
         for idx, proposal in enumerate(self.proposals):
             if idx == vote_option - 1:
                 proposal.vote += 1
-                return (f'Vote added for option {vote_option}. Current votes: {proposal.vote}')
-        return (f'Vote option not found: {vote_option}')
+                return f'Vote added for option {vote_option}. Current votes: {proposal.vote}'
+        return f'Vote option not found: {vote_option}'
 
     def reset(self):
-        """"Clears all vote options"""
+        """ "Clears all vote options"""
         self.proposals = []
-
 
 
 class Bot(commands.Bot):
@@ -110,7 +116,7 @@ class Bot(commands.Bot):
 
     async def event_ready(self):
         """Function that runs when bot connects to server"""
-        
+
         print(f'Logged in as | {self.nick}')
         print(f'User id is | {self.user_id}')
         if self.generator.past_story_entries:
@@ -131,29 +137,36 @@ class Bot(commands.Bot):
 
     @commands.command()
     async def vote(self, ctx: commands.Context):
-        await ctx.send(await self.vote_handler.add_vote(ctx.author.name, int(self._extract_message_text(ctx))))
+        await ctx.send(
+            await self.vote_handler.add_vote(
+                ctx.author.name, int(self._extract_message_text(ctx))
+            )
+        )
 
     async def _perform_action(self, user_action: str, ctx: commands.Context):
         """Continues the story by performing an action, communicating the result to the channel"""
-        await ctx.send(await self.vote_handler.add_vote_option(ctx.author.name, user_action))
+        await ctx.send(
+            await self.vote_handler.add_vote_option(ctx.author.name, user_action)
+        )
         if self.background_task is None:
             self.background_task = asyncio.create_task(self.background_logic(ctx))
-        
 
     # asyncio.create_task(something to run in the background without awaiting)
-    #self.backgroundTask() = asyncio.create_task()
-    #if self.backgroundTask() is not None:
+    # self.backgroundTask() = asyncio.create_task()
+    # if self.backgroundTask() is not None:
     async def background_logic(self, ctx: commands.Context):
         await asyncio.sleep(10)
-        
+
         chosen_action = max(self.vote_handler.proposals, key=lambda x: x.vote)
         action_index = self.vote_handler.proposals.index(chosen_action)
-        narration_result = self.generator.generate_next_story_narration(chosen_action.message)
+        narration_result = self.generator.generate_next_story_narration(
+            chosen_action.message
+        )
         message = f'Chose action {action_index + 1} ({chosen_action.vote} votes): {chosen_action.message} | {narration_result}'
         await self._send_chunked(ctx, message)
         self.vote_handler.reset()
         self.background_task = None
-    
+
     async def _send_chunked(self, ctx: commands.Context, text: str):
         while text:
             suffix = '...' if len(text) >= self.max_message_len else ''
@@ -168,8 +181,6 @@ class Bot(commands.Bot):
         (ie. "bar baz" from the message "!foo bar baz")
         """
         return ctx.message.content.split(' ', 1)[1]
-    
-    
 
 
 def main():
