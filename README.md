@@ -35,7 +35,7 @@ This project is a standard Python package and can be installed via `pip`. View b
    black . --line-length 88
    ```
 
-### Linux
+### Linux / Mac
 
 1. Set up a virtual environment:
    ```bash
