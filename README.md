@@ -27,14 +27,6 @@ This project is a standard Python package and can be installed via `pip`. View b
    twitch-plays-llm -h  # View the available commands
    ```
 
-4. Format and lint the code:
-   ```powershell
-   # Make sure to run beforehand: .venv\Scripts\activate
-   autoflake --remove-unused-variables --remove-all-unused-imports -i **/*.py
-   isort . --profile attrs
-   black . --line-length 88
-   ```
-
 ### Linux / Mac
 
 1. Set up a virtual environment:
@@ -56,10 +48,8 @@ This project is a standard Python package and can be installed via `pip`. View b
 
 ### Formatting and linting
 
-To run formatting and fix linting problems, run the following:
+To run formatting, run the following:
 ```bash
 # Make sure to activate the virtual environment before running this to access the executables
-autoflake --remove-unused-variables --remove-all-unused-imports -i **/*.py
-isort . --profile attrs
-blue . --line-length 88
+isort . --profile attrs; black . --line-length 88
 ```

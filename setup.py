@@ -26,7 +26,7 @@ setup(
         'asgiref',
     ],
     extras_require={
-        'dev': ['autoflake', 'isort', 'blue'],
+        'dev': ['isort', 'blue'],
     },
     entry_points={
         'console_scripts': ['twitch-plays-llm=twitch_plays_llm.__main__:main'],
