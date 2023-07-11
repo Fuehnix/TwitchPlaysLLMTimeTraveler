@@ -51,5 +51,5 @@ This project is a standard Python package and can be installed via `pip`. View b
 To run formatting, run the following:
 ```bash
 # Make sure to activate the virtual environment before running this to access the executables
-isort . --profile attrs; black . --line-length 88
+isort . --profile attrs; blue . --line-length 88
 ```
