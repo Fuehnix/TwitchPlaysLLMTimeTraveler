@@ -1,14 +1,16 @@
 # Load the configuration file
-import json
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-with open('config.json') as config_file:
-    config = json.load(config_file)
+class Settings(BaseSettings):
+    twitch_bot_username: str
+    twitch_bot_client_id: str
+    twitch_channel_name: str
+    openai_api_key: str
 
-# Now you can access your keys
-client_id = config['twitch']['clientkey']
-channel_name = config['twitch']['hostchannel']
-openai_api_key = config['openai']['api_key']
+    vote_delay: int = 20
 
-# constants
-vote_delay = 20
+    model_config = SettingsConfigDict(env_file='.env')
+
+
+config = Settings()

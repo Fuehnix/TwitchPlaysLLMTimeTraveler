@@ -1,6 +1,6 @@
 import asyncio
 
-from .config import vote_delay
+from .config import config
 from .models import Proposal
 from .story_generator import StoryGenerator
 
@@ -10,7 +10,9 @@ class LlmGameHooks:
     Hooks that get called for various events within the game.
     """
 
-    async def on_get_narration_result(self, narration_result: str, proposal: Proposal, proposal_id: int):
+    async def on_get_narration_result(
+        self, narration_result: str, proposal: Proposal, proposal_id: int
+    ):
         """
         Triggered after choosing a proposal and generating a narration result.
 
@@ -24,10 +26,10 @@ class LlmGameHooks:
 
 class LlmGame:
     """
-    Starts a new game.
+    Main game logic, handling story generation, proposal management and voting.
 
     Args:
-        hooks: Instance of LlmGameHooks with event handlers.
+        hooks: Handlers
     """
 
     def __init__(self, hooks: LlmGameHooks = LlmGameHooks()):
@@ -97,7 +99,7 @@ class LlmGame:
         A private asynchronous method which handles the collection of
         the votes after the time limit has elapsed
         """
-        await asyncio.wait_for(self.count_votes_event.wait(), vote_delay)
+        await asyncio.wait_for(self.count_votes_event.wait(), config.vote_delay)
 
         proposal = max(self.proposals, key=lambda x: x.vote)
         proposal_id = self.proposals.index(proposal)

@@ -5,7 +5,7 @@ from typing import Optional
 from twitchio.channel import Channel
 from twitchio.ext import commands
 
-from .config import channel_name, client_id
+from .config import config
 from .llm_game import LlmGame, LlmGameHooks
 from .models import Proposal
 
@@ -15,7 +15,11 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
 
     def __init__(self, llm_game: LlmGame):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
-        super().__init__(token=client_id, prefix='!', initial_channels=[channel_name])
+        super().__init__(
+            token=config.twitch_bot_client_id,
+            prefix='!',
+            initial_channels=[config.twitch_channel_name],
+        )
         self.game = llm_game
         self.channel: Optional[Channel] = None
 
@@ -24,7 +28,7 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         asyncio.get_running_loop().set_debug(True)
         print(f'Logged in as | {self.nick}')
         print(f'User id is | {self.user_id}')
-        self.channel = self.get_channel(channel_name)
+        self.channel = self.get_channel(config.twitch_channel_name)
         await self.channel.send(f'Story: {self.game.initial_story_message}')
 
     @commands.command()
