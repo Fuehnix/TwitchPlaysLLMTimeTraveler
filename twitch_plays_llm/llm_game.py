@@ -1,5 +1,7 @@
 import asyncio
 
+from contextlib import suppress
+
 from .config import config
 from .models import Proposal
 from .story_generator import StoryGenerator
@@ -99,7 +101,10 @@ class LlmGame:
         A private asynchronous method which handles the collection of
         the votes after the time limit has elapsed
         """
-        await asyncio.wait_for(self.count_votes_event.wait(), config.vote_delay)
+        print('Waiting for votes...')
+        with suppress(asyncio.TimeoutError):
+            await asyncio.wait_for(self.count_votes_event.wait(), config.vote_delay)
+        print('Waiting complete!')
 
         proposal = max(self.proposals, key=lambda x: x.vote)
         proposal_id = self.proposals.index(proposal)

@@ -78,7 +78,7 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         if not ctx.author.is_mod:
             await self._send(ctx.author.name + ', You are not a mod')
             return
-        self.game.count_votes_event.set()
+        self.game.end_vote()
 
     # --- Other Methods ---
 

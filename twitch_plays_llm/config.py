@@ -1,4 +1,3 @@
-# Load the configuration file
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,6 +8,7 @@ class Settings(BaseSettings):
     openai_api_key: str
 
     vote_delay: int = 20
+    backend_port: int = 9511
 
     model_config = SettingsConfigDict(env_file='.env')
 
