@@ -21,7 +21,9 @@ This project is a standard Python package and can be installed via `pip`. View b
    pip install -e ".[dev]"  # Install the local folder as a Python package
    ```
 
-3. Run the executable:
+3. Setup the environment: Copy the `.env.example` file to `.env` and fill out the fields (feel free to ask someone for test credentials).
+
+4. Run the executable:
    ```powershell
    # Make sure to run beforehand: .venv\Scripts\activate
    twitch-plays-llm -h  # View the available commands
@@ -40,7 +42,9 @@ This project is a standard Python package and can be installed via `pip`. View b
    pip install -e '.[dev]'  # Install the local folder as a Python package
    ```
 
-3. Run the executable:
+3. Setup the environment: Copy the `.env.example` file to `.env` and fill out the fields (feel free to ask someone for test credentials).
+
+4. Run the executable:
    ```bash
    # Make sure to run beforehand: source .venv/bin/activate
    twitch-plays-llm -h  # View the available commands
