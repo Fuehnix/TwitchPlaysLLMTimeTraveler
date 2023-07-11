@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 
-from threading import Thread
+from threading import Event, Thread
 from typing import Optional
 
 # import time
@@ -10,8 +10,8 @@ import openai
 
 from asgiref.sync import async_to_sync
 from pydantic import BaseModel
-from twitchio.ext import commands
 from twitchio.channel import Channel
+from twitchio.ext import commands
 
 
 # Load the configuration file
@@ -170,6 +170,7 @@ class LlmGame:
         self.background_thread = None
         self.hooks = hooks
         self.proposals: list[Proposal] = []
+        self.count_votes_event = Event()
 
     @property
     def initial_story_message(self) -> str:
@@ -185,7 +186,7 @@ class LlmGame:
 
     def restart(self):
         self.generator = StoryGenerator()
-        self.background_thread = None
+        self._new_turn()
 
     def add_proposal(self, story_action: str, author: str) -> int:
         proposal = Proposal(user=author, message=story_action, vote=0)
@@ -200,7 +201,7 @@ class LlmGame:
         return proposal_id
 
     def _background_thread_run(self):
-        time.sleep(vote_delay)
+        self.count_votes_event.wait(vote_delay)
 
         proposal = max(self.proposals, key=lambda x: x.vote)
         proposal_id = self.proposals.index(proposal)
@@ -209,8 +210,12 @@ class LlmGame:
             proposal.message
         )
         self.hooks.on_get_narration_result(narration_result, proposal, proposal_id)
+        self._new_turn()
+
+    def _new_turn(self):
         self.proposals = []
         self.background_thread = None
+        self.count_votes_event.clear()
 
 
 class Bot(commands.Bot, LlmGameHooks):
@@ -258,18 +263,26 @@ class Bot(commands.Bot, LlmGameHooks):
     @commands.command()
     async def reset(self, ctx: commands.Context):
         """Resets the game if the user is a mod"""
-        if ctx.author.is_mod:
-            self.game.restart()
-            await self._send('Game has been reset')
-        else:
+        if not ctx.author.is_mod:
             await self._send(ctx.author.name + ', You are not a mod')
+            return
+
+        self.game.restart()
+        await self._send('Game has been reset')
 
     @commands.command()
     async def modvote(self, ctx: commands.Context):
-        if ctx.author.is_mod:
-            await self._vote(ctx, weight=99)
-        else:
+        if not ctx.author.is_mod:
             await self._send(ctx.author.name + ', You are not a mod')
+            return
+        await self._vote(ctx, weight=99)
+
+    @commands.command()
+    async def endvote(self, ctx: commands.Context):
+        if not ctx.author.is_mod:
+            await self._send(ctx.author.name + ', You are not a mod')
+            return
+        self.game.count_votes_event.set()
 
     # --- Other Methods ---
 
