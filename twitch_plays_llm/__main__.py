@@ -7,6 +7,7 @@ import openai
 from pydantic import BaseModel
 from twitchio.ext import commands
 
+
 # Load the configuration file
 with open('config.json') as config_file:
     config = json.load(config_file)
@@ -17,8 +18,8 @@ channel_name = config['twitch']['hostchannel']
 openai_api_key = config['openai']['api_key']
 openai.api_key = openai_api_key
 
-
-
+#constants
+vote_delay = 20
 
 
 # BaseModel is similar to a dataclass (used to store data in a structure way)
@@ -41,7 +42,7 @@ class StoryGenerator:
                 user_action='',
                 # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
                 # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
-                narration_result="You're a jovial gnome bard, renowned across the taverns of Baldur's Gate for your quick wit and sparkling lute melodies. It's the Year of the Spitting Triton, and you find yourself in the bustling city market, surrounded by a cacophony of traders, minstrels, and townsfolk. Suddenly, a bedraggled messenger races towards you - he carries a message "
+                narration_result="You're a jovial gnome bard, renowned across the taverns of Baldur's Gate for your quick wit and sparkling lute melodies. It's the Year of the Spitting Triton, and you find yourself in the bustling city market, surrounded by a cacophony of traders, minstrels, and townsfolk. Suddenly, a bedraggled messenger races towards you - he carries a message ",
             )
         ]
 
@@ -60,19 +61,19 @@ class StoryGenerator:
 
                             Presentation Rules:
 
-                            1. Play the game in turns, starting with you.
+                            1. At each turn, the user says an action and you reply with a short continuation of the story outlining the events that happen in the story based on the action the user performed.
 
                             2. Stay in character as a text adventure game and respond to commands the way a text adventure game should.
-
-                            3. Have an NPC in the story scold the player if they try to do something that is not possible. If they are alone, God will scold them.
 
                             Fundamental Game Mechanics:
 
                             1. If an action is unsuccessful, respond with a relevant consequence.
 
+                            2. Sometimes, people are secretly bears.
+
                             Refer back to these rules after every prompt.
 
-                            Start Game."""
+                            Start Game.""",
             },
         ]
         for story_entry in self.past_story_entries:
@@ -99,16 +100,32 @@ class StoryGenerator:
             StoryEntry(user_action=user_action, narration_result=next_narration)
         )
         return next_narration
-    
+
     def reset(self):
         self.past_story_entries = [
             StoryEntry(
                 user_action='',
                 # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
                 # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
-                narration_result="You're a jovial gnome bard, renowned across the taverns of Baldur's Gate for your quick wit and sparkling lute melodies. It's the Year of the Spitting Triton, and you find yourself in the bustling city market, surrounded by a cacophony of traders, minstrels, and townsfolk. Suddenly, a bedraggled messenger races towards you - he carries a message "
+                narration_result="You're a jovial gnome bard, renowned across the taverns of Baldur's Gate for your quick wit and sparkling lute melodies. It's the Year of the Spitting Triton, and you find yourself in the bustling city market, surrounded by a cacophony of traders, minstrels, and townsfolk. Suddenly, a bedraggled messenger races towards you - he carries a message ",
             )
         ]
+
+
+# placeholder for quest handler
+class QuestHandler:
+    def __init__(self, quest):
+        self.quest = quest
+
+    def evaluateQuest(self, context: list[StoryEntry]):
+        """Evaluates the current quest and returns a boolean indicating whether the quest is complete"""
+        LLMinput = [
+            {
+                'role': 'system',
+                'content': """Acting as a quest classifier for a adventure game, classify whether a player has fulfilled the quest or not. Classify and respond with "Complete", "Incomplete", or "Failure" """,
+            },
+        ]
+
 
 class VoteHandler:
     def __init__(self):
@@ -136,7 +153,7 @@ class VoteHandler:
                 proposal.vote += 999999
                 return f'Mod Vote added for option {vote_option}. Current votes: {proposal.vote}'
         return f'Vote option not found: {vote_option}'
-    
+
     def reset(self):
         """ "Clears all vote options"""
         self.proposals = []
@@ -180,8 +197,6 @@ class Bot(commands.Bot):
                 ctx.author.name, int(self._extract_message_text(ctx))
             )
         )
-    
-
 
     @commands.command()
     async def help(self, ctx: commands.Context):
@@ -190,12 +205,12 @@ class Bot(commands.Bot):
             'Welcome to the Storyteller! The goal of this game is to collaboratively create a story. At each turn, the user says an action and the bot replies with a short continuation of the story outlining the events that happen in the story based on the action the user performed. The user can then vote on the next action to perform. The bot will then continue the story based on the action with the most votes. To perform an action, type "!action <action>". To say something, type "!say <message>". To vote on the next action, type "!vote <number>".'
         )
 
-
     ### MOD COMMANDS ###
     @commands.command()
     async def reset(self, ctx: commands.Context):
         """Resets the game if the user is a mod"""
-        if (ctx.author.is_mod()):
+        if ctx.author.is_mod:
+            # reset or recreate? - decide later
             # self.vote_handler.reset()
             # self.generator.reset()
             self.generator = StoryGenerator()
@@ -203,18 +218,18 @@ class Bot(commands.Bot):
             self.background_task = None
             await ctx.send('Game has been reset')
         else:
-            await ctx.send(ctx.author.name + ", You are not a mod")
+            await ctx.send(ctx.author.name + ', You are not a mod')
 
     @commands.command()
-    async def modVote(self, ctx: commands.Context):
-        if (ctx.author.is_mod()):
+    async def modvote(self, ctx: commands.Context):
+        if ctx.author.is_mod:
             await ctx.send(
                 await self.vote_handler.add_vote(
                     ctx.author.name, int(self._extract_message_text(ctx))
                 )
             )
         else:
-            await ctx.send(ctx.author.name + ", You are not a mod")
+            await ctx.send(ctx.author.name + ', You are not a mod')
 
     async def _perform_action(self, user_action: str, ctx: commands.Context):
         """Continues the story by performing an action, communicating the result to the channel"""
@@ -228,7 +243,7 @@ class Bot(commands.Bot):
     # self.backgroundTask() = asyncio.create_task()
     # if self.backgroundTask() is not None:
     async def background_logic(self, ctx: commands.Context):
-        await asyncio.sleep(10)
+        await asyncio.sleep(vote_delay)
 
         chosen_action = max(self.vote_handler.proposals, key=lambda x: x.vote)
         action_index = self.vote_handler.proposals.index(chosen_action)
@@ -257,10 +272,10 @@ class Bot(commands.Bot):
         return ctx.message.content.split(' ', 1)[1]
 
 
-
 def main():
     bot = Bot()
     bot.run()
+
 
 if __name__ == '__main__':
     main()
