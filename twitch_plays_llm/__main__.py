@@ -8,7 +8,7 @@ from typing import Optional
 # import time
 import openai
 
-from asgiref.sync import async_to_sync
+from asgiref.sync import sync_to_async
 from pydantic import BaseModel
 from twitchio.channel import Channel
 from twitchio.ext import commands
@@ -95,6 +95,7 @@ class StoryGenerator:
         messages.append({'role': 'user', 'content': story_action})
         return messages
 
+    @sync_to_async
     def generate_next_story_narration(self, story_action: str):
         """Generates the continuation of the story given a user action"""
         response = openai.ChatCompletion.create(
@@ -155,10 +156,7 @@ class VoteHandler:
 
 
 class LlmGameHooks:
-    def on_choose_proposal(self, proposal: Proposal):
-        pass
-
-    def on_get_narration_result(
+    async def on_get_narration_result(
         self, narration_result: str, proposal: Proposal, proposal_id: int
     ):
         pass
@@ -167,10 +165,10 @@ class LlmGameHooks:
 class LlmGame:
     def __init__(self, hooks: LlmGameHooks = LlmGameHooks()):
         self.generator = StoryGenerator()
-        self.background_thread = None
+        self.background_task = None
         self.hooks = hooks
         self.proposals: list[Proposal] = []
-        self.count_votes_event = Event()
+        self.count_votes_event = asyncio.Event()
 
     @property
     def initial_story_message(self) -> str:
@@ -193,28 +191,29 @@ class LlmGame:
         print(proposal)
         self.proposals.append(proposal)
         proposal_id = len(self.proposals)
-        if self.background_thread is None:
-            self.background_thread = Thread(
-                target=self._background_thread_run, daemon=True
-            )
-            self.background_thread.start()
+        if self.background_task is None:
+            self.background_task = asyncio.create_task(self._background_thread_run())
         return proposal_id
 
-    def _background_thread_run(self):
-        self.count_votes_event.wait(vote_delay)
+    def end_vote(self):
+        self.count_votes_event.set()
+
+    async def _background_thread_run(self):
+        await asyncio.wait_for(self.count_votes_event.wait(), vote_delay)
 
         proposal = max(self.proposals, key=lambda x: x.vote)
         proposal_id = self.proposals.index(proposal)
-        self.hooks.on_choose_proposal(proposal)
-        narration_result = self.generator.generate_next_story_narration(
+        narration_result = await self.generator.generate_next_story_narration(
             proposal.message
         )
-        self.hooks.on_get_narration_result(narration_result, proposal, proposal_id)
+        await self.hooks.on_get_narration_result(
+            narration_result, proposal, proposal_id
+        )
         self._new_turn()
 
     def _new_turn(self):
         self.proposals = []
-        self.background_thread = None
+        self.background_task = None
         self.count_votes_event.clear()
 
 
@@ -268,7 +267,7 @@ class Bot(commands.Bot, LlmGameHooks):
             return
 
         self.game.restart()
-        await self._send('Game has been reset')
+        await self._send(f'Game has been reset | {self.game.initial_story_message}')
 
     @commands.command()
     async def modvote(self, ctx: commands.Context):
@@ -297,7 +296,6 @@ class Bot(commands.Bot, LlmGameHooks):
                 f'Vote added for option {vote_option_str}. Current votes: {new_count}'
             )
 
-    @async_to_sync
     async def on_get_narration_result(
         self, narration_result: str, proposal: Proposal, proposal_id: int
     ):
