@@ -40,7 +40,7 @@ class StoryGenerator:
 
                             1. If an action is unsuccessful, respond with a relevant consequence.
 
-                            2. Sometimes, people are secretly bears.
+                            2. Allow players to be creative, but nudge them towards the main quest. 
 
                             Refer back to these rules after every prompt.
 

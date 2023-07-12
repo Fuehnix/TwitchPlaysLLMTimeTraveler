@@ -52,7 +52,7 @@ class LlmGame:
         assert self.generator.past_story_entries
         return self.generator.past_story_entries[-1].narration_result
 
-    def vote(self, proposal_id: int, weight: int = 1):
+    def vote(self, proposal_id: int, weight: int = 1) -> Proposal:
         """
         Adds a vote to a proposal.
 
@@ -61,12 +61,12 @@ class LlmGame:
             weight: The weight of the vote (defaults to 1).
 
         Returns:
-            The new vote count of the proposal.
+            The proposal object that was voted on.
         """
         if not 0 < proposal_id <= len(self.proposals):
             raise ValueError(f'Invalid proposal id: {proposal_id}')
         self.proposals[proposal_id - 1].vote += weight
-        return self.proposals[proposal_id - 1].vote
+        return self.proposals[proposal_id - 1]
 
     def end_vote(self):
         """Ends the voting process by setting the count_votes_event."""
