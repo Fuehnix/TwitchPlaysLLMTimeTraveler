@@ -13,9 +13,24 @@ class StoryGenerator:
                 story_action='',
                 # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
                 # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
-                narration_result="You're a jovial gnome bard, renowned across the taverns of Baldur's Gate for your quick wit and sparkling lute melodies. It's the Year of the Spitting Triton, and you find yourself in the bustling city market, surrounded by a cacophony of traders, minstrels, and townsfolk. Suddenly, a bedraggled messenger races towards you - he carries a message ",
+                # narration_result="You're a jovial gnome bard, renowned across the taverns of Baldur's Gate for your quick wit and sparkling lute melodies. It's the Year of the Spitting Triton, and you find yourself in the bustling city market, surrounded by a cacophony of traders, minstrels, and townsfolk. Suddenly, a bedraggled messenger races towards you - he carries a message ",
+                narration_result= self.construct_initial_prompt();
             )
         ]
+
+    def construct_initial_prompt(self):
+        rules = """Create a writing prompt to start an RPG text adventure game.  Adhere to the following rules:
+                    1. The story should take place in Baldur's Gate from Dungeons and Dragons' Forgotten Realms.
+                    2 You should describe the player's characteristics, where they are, what time period they are in, and what surrounds them.
+                    3. Keep it fun and light hearted. This isn't for a novel, it's for a game on Twitch.
+                    4. Use the 2nd person perspective.
+                    5. The prompt should be only 3 - 5 sentences long."""
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',
+            messages = self.construct_prompt_messages(rules),
+        )
+        initial_prompt = response['choices'][0]['message']['content']
+        return initial_prompt
 
     def construct_prompt_messages(self, story_action: str):
         # === ChatCompletions API reference ===
