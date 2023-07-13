@@ -26,6 +26,7 @@ This project is a standard Python package and can be installed via `pip`. View b
 4. Run the executable:
    ```powershell
    # Make sure to run beforehand: .venv\Scripts\activate
+   twitch-plays-llm run # run the executable
    twitch-plays-llm -h  # View the available commands
    ```
 
@@ -47,6 +48,7 @@ This project is a standard Python package and can be installed via `pip`. View b
 4. Run the executable:
    ```bash
    # Make sure to run beforehand: source .venv/bin/activate
+   twitch-plays-llm run # run the executable
    twitch-plays-llm -h  # View the available commands
    ```
 
