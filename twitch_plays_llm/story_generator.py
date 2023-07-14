@@ -26,7 +26,7 @@ class StoryGenerator:
                     4. Use the 2nd person perspective.
                     5. The prompt should be only 3 - 5 sentences long."""
         messages = [{ 'role': 'user',
-                'content': {rules}}]
+                'content': rules}]
 
         response = openai.ChatCompletion.create(
             model='gpt-3.5-turbo',

@@ -25,7 +25,7 @@ def on_startup():
 
 
 @app.get('/proposals')
-def get_proposales() -> List[Proposal]:
+def get_proposals() -> List[Proposal]:
     game: LlmGame = app.state.game
     return game.proposals
 
