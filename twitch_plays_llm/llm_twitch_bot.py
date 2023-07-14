@@ -108,6 +108,18 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         self.game.end_vote()
 
     @commands.command()
+    async def leaderboard(self, ctx: commands.Context):
+        leaderboard = [(user, points) for user, points in self.viewer_points.items()]
+        leaderboard.sort(key=lambda x: x[1], reverse=True)  # Sort the leaderboard by points in descending order
+        top_5 = leaderboard[:5]  # Get the top 5 users
+
+        leaderboard_text = "Top 5 Users:\n"
+        for i, (user, points) in enumerate(top_5, start=1):
+            leaderboard_text += f"{i}. {user}: {points}\n"
+
+        await ctx.send(leaderboard_text)
+
+    @commands.command()
     async def givepoints(self, ctx: commands.Context):
         """Give points to a user"""
         #!givepoints <user> <points>
@@ -131,8 +143,6 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         """Trigger for user to vote on the next action"""
         vote_option_str = self._extract_message_text(ctx)
         user = ctx.author.name
-        #TO DO: add points to proposer for each vote they receive
-        #TO DO: add points leaderboard
         try:
             proposal = self.game.vote(int(vote_option_str))
             new_count = proposal.vote
@@ -142,6 +152,10 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
                     self.viewer_points[user] += config.vote_points
                 else:
                     self.viewer_points[user] = config.vote_points
+            if proposer in self.viewer_points:
+                self.viewer_points[proposer] += config.points_earned_per_vote
+            else:
+                self.viewer_points[proposer] = config.points_earned_per_vote
         except ValueError:
             await self._send(f'Invalid vote option: {vote_option_str}')
         else:
@@ -151,6 +165,10 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
     async def on_get_narration_result(
         self, narration_result: str, proposal: Proposal, proposal_id: int
     ):
+        if proposal.user in self.viewer_points:
+            self.viewer_points[user] += config.vote_points
+        else:
+            self.viewer_points[user] = config.vote_points
         await self._send_chunked(
             f'Chose action {proposal_id} ({proposal.vote} votes): {proposal.message} | {narration_result}'
         )
