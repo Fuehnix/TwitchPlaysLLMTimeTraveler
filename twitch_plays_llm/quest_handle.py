@@ -12,9 +12,5 @@ class QuestHandler:
             {
                 'role': 'system',
                 'content': """Acting as a quest classifier for a adventure game, classify whether a player has fulfilled the quest or not. Classify and respond with "Complete", "Incomplete", or "Failure" """,
-            },
-            {
-                'role': 'user',
-                'content': ""
             }
         ]

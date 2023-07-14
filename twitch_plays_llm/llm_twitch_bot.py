@@ -45,11 +45,11 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         """Trigger for user to perofrm an action within the game"""
         story_action = self._extract_message_text(ctx)
         user = ctx.author.name
-        if user not in self.viewer_points or self.viewer_points[user] < 100:
-            await self._send(f'{user} does not have enough points to perform an action. Try voting for someone else!')
-        else:
-            self.viewer_points[user] -= 100
+        if user not in self.viewer_points or self.viewer_points[user] > config.action_cost: #first action is free, or if they have enough points
+            self.viewer_points[user] -= config.action_cost
             await self._propose_story_action(story_action, user)
+        else:
+            await self._send(f'{user} does not have enough points to perform an action. Try voting for someone else!')
 
 
     @commands.command()
@@ -113,13 +113,15 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
             await self._send(ctx.author.name + ', You are not a mod')
             return
         else:
-            user = ctx.author.name
-            #debug later
-            message_split = ctx.message.content.split()
-            user = message_split[1]
-            points = message_split[2]
-            self.viewer_points[user] += points
-            await self._send(f'{user} was given {points} points ')
+            try:
+                #debug later
+                message_split = ctx.message.content.split()
+                user = message_split[1]
+                points = message_split[2]
+                self.viewer_points[user] += points
+                await self._send(f'{user} was given {points} points ')
+            except KeyError:
+                await self._send(f'{user} does not exist')
 
     # --- Other Methods ---
 
@@ -127,23 +129,21 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         """Trigger for user to vote on the next action"""
         vote_option_str = self._extract_message_text(ctx)
         user = ctx.author.name
-
+        #TO DO: add points to proposer for each vote they receive
+        #TO DO: add points leaderboard
         try:
             proposal = self.game.vote(int(vote_option_str))
             new_count = proposal.vote
             proposer = proposal.user
             if user != proposer:
                 if user in self.viewer_points:
-                    self.viewer_points[user] += 100
+                    self.viewer_points[user] += config.vote_points
                 else:
-                    self.viewer_points[user] = 100
-                
+                    self.viewer_points[user] = config.vote_points
         except ValueError:
             await self._send(f'Invalid vote option: {vote_option_str}')
         else:
-            await self._send(
-                f'Vote added for option {vote_option_str}. Current votes: {new_count}'
-            )
+            await self._send(f'Vote added for option {vote_option_str}. Current votes: {new_count}')
 
 
     async def on_get_narration_result(
@@ -152,6 +152,8 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         await self._send_chunked(
             f'Chose action {proposal_id} ({proposal.vote} votes): {proposal.message} | {narration_result}'
         )
+        for user, points in self.viewer_points.items():
+            self.viewer_points[user] += config.vote_accumulation
 
     async def _propose_story_action(self, story_action: str, author: str):
         """Continues the story by performing an action, communicating the result to the channel"""
