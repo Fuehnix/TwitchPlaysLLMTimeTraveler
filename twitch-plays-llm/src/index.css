@@ -1,3 +1,7 @@
+:root {
+  --card-color: #262626;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +9,53 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: rgb(8, 8, 8);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.site-container {
+  display: flex;
+  width: 100vw;
+  height: 100vw;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.main-column {
+  min-width: 50%;
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.chat-column {
+  flex: 1;
+  flex-basis: 50%;
+  padding: 20px;
+  display: flex;
+  flex-flow: row wrap;
+  height: fit-content;
+  gap: 16px;
+}
+
+.response-card {
+  flex: 1;
+  min-width: 200px;
+  width: 33%;
+  max-width: 100%;
+  height: 200px;
+}
+
+.card {
+  background: var(--card-color);
+  border-radius: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+  line-height: 16px;
+}
+
+.card p {
+  margin-top: 0;
+}
+
+p {
+  color: white;
 }
