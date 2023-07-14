@@ -59,8 +59,8 @@ function App() {
         <h2 style={{ marginBottom: '0px' }}>Story</h2>
         {storyHistory.map((entry, index) => (
           <div key={index} className="card">
-            <p>Action: {entry.story_action}</p>
-            <p>Result: {entry.narration_result}</p>
+            {entry.story_action ? <p><i>{entry.story_action}</i></p> : <></>}
+            <p>{entry.narration_result}</p>
           </div>
         ))}
       </div>
@@ -68,9 +68,9 @@ function App() {
       <div className="page-column chat-column">
         <h2 style={{ marginBottom: '0px' }}>Proposals</h2>
         <div>
-          {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} color='#eb9500' /> : <p>No proposals.</p>}
+          {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} color='#eb9500' /> : proposals?.length ? <p>Loading...</p> : <p>No proposals.</p>}
         </div>
-        {proposals.map((proposal, index) => (
+        {timeInfo && proposals.map((proposal, index) => (
           <div key={index} style={{ position: 'relative' }} className="card response-card">
             <div>
               <p><b>{index + 1}: </b>{proposal.message}</p>

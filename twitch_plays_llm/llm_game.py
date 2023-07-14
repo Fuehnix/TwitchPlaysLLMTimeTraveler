@@ -39,6 +39,7 @@ class LlmGame:
     def __init__(self, hooks: LlmGameHooks = LlmGameHooks()):
         self.generator = StoryGenerator()
         self.background_task = None
+        self.background_task_lock = asyncio.Lock()
         self.hooks = hooks
         self.proposals = []
         self.count_votes_event = asyncio.Event()
@@ -80,7 +81,7 @@ class LlmGame:
         self.generator = StoryGenerator()
         self._new_turn()
 
-    def add_proposal(self, story_action: str, author: str) -> int:
+    async def add_proposal(self, story_action: str, author: str) -> int:
         """
         Adds a proposal for an action for the main character to take
 
@@ -91,12 +92,13 @@ class LlmGame:
         Returns:
             The id of the newly created proposal.
         """
-        proposal = Proposal(user=author, message=story_action, vote=0)
-        print(proposal)
-        self.proposals.append(proposal)
-        proposal_id = len(self.proposals)
-        if self.background_task is None:
-            self.background_task = asyncio.create_task(self._background_thread_run())
+        async with self.background_task_lock:
+            proposal = Proposal(user=author, message=story_action, vote=0)
+            print(proposal)
+            self.proposals.append(proposal)
+            proposal_id = len(self.proposals)
+            if self.background_task is None:
+                self.background_task = asyncio.create_task(self._background_thread_run())
         return proposal_id
 
     async def _background_thread_run(self):
@@ -112,15 +114,18 @@ class LlmGame:
         self.next_count_vote_time = None
         print('Waiting complete!')
 
-        proposal = max(self.proposals, key=lambda x: x.vote)
-        proposal_id = self.proposals.index(proposal)
-        narration_result = await self.generator.generate_next_story_narration(
-            proposal.message
-        )
-        await self.hooks.on_get_narration_result(
-            narration_result, proposal, proposal_id
-        )
-        self._new_turn()
+        async with self.background_task_lock:
+            try:
+                proposal = max(self.proposals, key=lambda x: x.vote)
+                proposal_id = self.proposals.index(proposal)
+                narration_result = await self.generator.generate_next_story_narration(
+                    proposal.message
+                )
+                await self.hooks.on_get_narration_result(
+                    narration_result, proposal, proposal_id
+                )
+            finally:
+                self._new_turn()
 
     def _new_turn(self):
         """Initializes a new turn within the game"""

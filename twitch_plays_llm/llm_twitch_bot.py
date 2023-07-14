@@ -10,13 +10,13 @@ from .llm_game import LlmGame, LlmGameHooks
 from .models import Proposal
 
 
-
-""" 
+"""
 point system task list:
 channel.chatters() returns a list of chatters in the channel
 -   regularly increment points for chatters (method)
 -   move points from being a variable to a persistant database somewhere
 """
+
 
 class LlmTwitchBot(commands.Bot, LlmGameHooks):
     max_message_len = 500  # Twitch has a 500 character limit
@@ -161,14 +161,13 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         else:
             await self._send(f'Vote added for option {vote_option_str}. Current votes: {new_count}')
 
-
     async def on_get_narration_result(
         self, narration_result: str, proposal: Proposal, proposal_id: int
     ):
         if proposal.user in self.viewer_points:
-            self.viewer_points[user] += config.vote_points
+            self.viewer_points[proposal.user] += config.vote_points
         else:
-            self.viewer_points[user] = config.vote_points
+            self.viewer_points[proposal.user] = config.vote_points
         await self._send_chunked(
             f'Chose action {proposal_id} ({proposal.vote} votes): {proposal.message} | {narration_result}'
         )
@@ -177,7 +176,7 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
 
     async def _propose_story_action(self, story_action: str, author: str):
         """Continues the story by performing an action, communicating the result to the channel"""
-        proposal_id = self.game.add_proposal(story_action, author)
+        proposal_id = await self.game.add_proposal(story_action, author)
         await self._send(f'Option {proposal_id} added: {story_action}')
 
     async def _send_chunked(self, text: str):
