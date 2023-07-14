@@ -22,6 +22,13 @@ This project is a standard Python package and can be installed via `pip`. View b
    ```
 
 3. Setup the environment: Copy the `.env.example` file to `.env` and fill out the fields (feel free to ask someone for test credentials).
+   ```bash
+   twitch_bot_username=_bot_name
+   twitch_bot_client_id=oauth:abc123
+   twitch_channel_name=your_channel_name
+   openai_api_key=sk-abc123
+   vote_delay=4
+   ```
 
 4. Run the executable:
    ```powershell
