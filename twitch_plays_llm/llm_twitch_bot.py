@@ -45,7 +45,9 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         """Trigger for user to perofrm an action within the game"""
         story_action = self._extract_message_text(ctx)
         user = ctx.author.name
-        if user not in self.viewer_points or self.viewer_points[user] > config.action_cost: #first action is free, or if they have enough points
+        if user not in self.viewer_points:
+            self.viewer_points[user] = 500
+        if self.viewer_points[user] > config.action_cost: #first action is free, or if they have enough points
             self.viewer_points[user] -= config.action_cost
             await self._propose_story_action(story_action, user)
         else:

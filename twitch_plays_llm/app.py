@@ -14,6 +14,20 @@ app = FastAPI()
 # We need to maintain a reference to running coroutines to prevent GC
 background_task = None
 
+from fastapi.middleware.cors import CORSMiddleware
+
+
+origins = [
+    "http://localhost:3000",  # React app is served from this URL
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event('startup')
 def on_startup():
