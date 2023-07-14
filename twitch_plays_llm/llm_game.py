@@ -1,6 +1,8 @@
 import asyncio
 
 from contextlib import suppress
+import time
+from typing import Optional
 
 from .config import config
 from .models import Proposal
@@ -40,6 +42,7 @@ class LlmGame:
         self.hooks = hooks
         self.proposals = []
         self.count_votes_event = asyncio.Event()
+        self.next_count_vote_time: Optional[int] = None
 
     @property
     def initial_story_message(self) -> str:
@@ -102,8 +105,11 @@ class LlmGame:
         the votes after the time limit has elapsed
         """
         print('Waiting for votes...')
+        self.next_count_vote_time = time.time() + config.vote_delay
         with suppress(asyncio.TimeoutError):
             await asyncio.wait_for(self.count_votes_event.wait(), config.vote_delay)
+
+        self.next_count_vote_time = None
         print('Waiting complete!')
 
         proposal = max(self.proposals, key=lambda x: x.vote)
