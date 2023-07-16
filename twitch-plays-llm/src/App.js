@@ -19,6 +19,17 @@ const ProgressBar = ({ count, total }) => {
 };
 
 
+function getLastNonEmptyNarrationImage(storyHistory) {
+  for (let i = storyHistory.length - 1; i >= 0; i--) {
+    const narration = storyHistory[i].narration_image_url;
+    if (narration !== "") {
+      const isLastEntry = i === storyHistory.length - 1;
+      return { url: narration, isLastEntry: isLastEntry };
+    }
+  }
+  return { url: '', isLastEntry: false };
+}
+
 
 // Main App component
 function App() {
@@ -28,6 +39,11 @@ function App() {
   const [timeInfo, setTimeInfo] = useState(null);
   const proposalRef = useRef(null); // Ref for scrolling
   const storyRef = useRef(null);   // Ref for scrolling
+
+  const {
+    url: narrationImageUrl,
+    isLastEntry: isNarrationImageUrlRecent
+  } = getLastNonEmptyNarrationImage(storyHistory);
 
   // Use useEffect to fetch data from server on mount and every second
   useEffect(() => {
@@ -58,7 +74,7 @@ function App() {
     storyRef.current?.scrollIntoView({ behavior: 'smooth' });  // Scroll to bottom of story
   }, [proposals, storyHistory]);  // Trigger when proposals or storyHistory changes
 
-  
+
   // Define badge style
   const badgeStyle = {
     display: "inline-block",
@@ -90,9 +106,7 @@ function App() {
       </div>
 
       <div className="page-column chat-column">
-        <div className="image-container">
-          <img src="https://wallpapercave.com/wp/wp4471362.jpg"/>
-        </div>
+        <ImageContainer src={narrationImageUrl} isLoading={!isNarrationImageUrlRecent} />
         <h2 style={{ marginBottom: '0px' }}>Proposals</h2>
         <div className="proposals">
           {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} /> : proposals?.length ? 
@@ -117,8 +131,26 @@ function App() {
           </div>
         ))}
       </div>
-    </div>
+    </div >
   );
+}
+
+function ImageContainer({ src, isLoading }) {
+  return <div className="image-container">
+    {isLoading && <>
+      <Spinner />
+      <div class="image-dimmer-overlay" />
+    </>}
+    {src ? <img src={src} /> : <div style={{ width: '100%', aspectRatio: '1 / 1' }} />}
+
+  </div>
+}
+
+function Spinner() {
+  // CSS defines all the animations on these divs
+  return <div class="lds-spinner">
+    {Array(12).fill(<div></div>)}
+  </div>;
 }
 
 export default App;

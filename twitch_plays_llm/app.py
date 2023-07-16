@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .llm_game import LlmGame
 from .llm_twitch_bot import LlmTwitchBot
@@ -16,8 +17,6 @@ app = FastAPI()
 
 # We need to maintain a reference to running coroutines to prevent GC
 background_task = None
-
-from fastapi.middleware.cors import CORSMiddleware
 
 
 origins = [
@@ -31,6 +30,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.on_event('startup')
 def on_startup():
@@ -59,7 +59,7 @@ class TimeRemainingResponse(BaseModel):
 
 
 @app.get('/vote-time-remaining')
-def get_story_history() -> Optional[TimeRemainingResponse]:
+def get_vote_time_remaining() -> Optional[TimeRemainingResponse]:
     game: LlmGame = app.state.game
     if game.next_count_vote_time is None:
         return None

@@ -118,11 +118,11 @@ class LlmGame:
             try:
                 proposal = max(self.proposals, key=lambda x: x.vote)
                 proposal_id = self.proposals.index(proposal)
-                narration_result = await self.generator.generate_next_story_narration(
+                story_entry = await self.generator.generate_next_story_narration(
                     proposal.message
                 )
                 await self.hooks.on_get_narration_result(
-                    narration_result, proposal, proposal_id
+                    story_entry.narration_result, proposal, proposal_id
                 )
             finally:
                 self._new_turn()

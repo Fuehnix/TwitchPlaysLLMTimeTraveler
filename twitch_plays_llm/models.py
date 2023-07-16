@@ -3,8 +3,9 @@ from pydantic import BaseModel
 
 
 class StoryEntry(BaseModel):
-    story_action: str
-    narration_result: str
+    story_action: str = ''
+    narration_result: str = ''
+    narration_image_url: str = ''
 
 
 class Proposal(BaseModel):
