@@ -12,15 +12,17 @@ from .models import StoryEntry
 class StoryGenerator:
     def __init__(self):
         # TODO: Dynamically generate initial prompt
+        initial_entry = StoryEntry(
+            story_action='',
+            # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
+            # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
+            narration_result=
+            """Welcome, brave Esther, to the sprawling city of Gearlock, a symphony of cogwheel and steam where airships drift through the sooty skies and giant gearworks define the horizon. Here, a bird's-eye view is a literal commodity you possess, becoming as sparrows or falcons at will. Time isn't a river but a swirling eddy for you, bendable and controllable. The diverse, lively chatter of your "Twitch" keeps your world kaleidoscopic, pushing and pulling you through the cacophonic rhythm of your dual existence. As you walk through the vibrant brass streets, your skilled eyes see the intricate beauty of life sketched in every corner. A sudden flutter of wings catches your attention; a mechanical messenger pigeon lands near you, a note gripped in its tiny metallic talons. A quick scan of the message, and it's clear: an urgent summons from the enigmatic Clockwork Guildmaster, a call to action that your many voices are eager to answer."""
+        )
         self.past_story_entries = [
-            StoryEntry(
-                story_action='',
-                # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
-                # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
-                narration_result=
-                """Welcome, brave Esther, to the sprawling city of Gearlock, a symphony of cogwheel and steam where airships drift through the sooty skies and giant gearworks define the horizon. Here, a bird's-eye view is a literal commodity you possess, becoming as sparrows or falcons at will. Time isn't a river but a swirling eddy for you, bendable and controllable. The diverse, lively chatter of your "Twitch" keeps your world kaleidoscopic, pushing and pulling you through the cacophonic rhythm of your dual existence. As you walk through the vibrant brass streets, your skilled eyes see the intricate beauty of life sketched in every corner. A sudden flutter of wings catches your attention; a mechanical messenger pigeon lands near you, a note gripped in its tiny metallic talons. A quick scan of the message, and it's clear: an urgent summons from the enigmatic Clockwork Guildmaster, a call to action that your many voices are eager to answer."""
-            )
+            initial_entry
         ]
+        self.generate_image_task = asyncio.create_task(self._generate_narration_image(initial_entry))
 
     def construct_initial_prompt(self):
         """Not used
