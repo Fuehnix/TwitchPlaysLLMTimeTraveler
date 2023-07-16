@@ -26,7 +26,8 @@ function App() {
   const [proposals, setProposals] = useState([]);
   const [storyHistory, setStoryHistory] = useState([]);
   const [timeInfo, setTimeInfo] = useState(null);
-  const proposalRef = useRef(null);  // Ref for scrolling
+  const proposalRef = useRef(null); // Ref for scrolling
+  const storyRef = useRef(null);   // Ref for scrolling
 
   // Use useEffect to fetch data from server on mount and every second
   useEffect(() => {
@@ -50,7 +51,9 @@ function App() {
 
   useEffect(() => {  // New useEffect for scrolling
     proposalRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [proposals]);
+    storyRef.current?.scrollIntoView({ behavior: 'smooth' });  // Scroll to bottom of story
+  }, [proposals, storyHistory]);  // Trigger when proposals or storyHistory changes
+
   
   // Define badge style
   const badgeStyle = {
@@ -75,7 +78,7 @@ function App() {
       <div className="page-column main-column">
         <h2 style={{ marginBottom: '0px' }}>Story</h2>
         {storyHistory.map((entry, index) => (
-          <div key={index} className="card">
+          <div key={index} className="card" ref={index === storyHistory.length - 1 ? storyRef : null}>
             {entry.story_action ? <p><i>{entry.story_action}</i></p> : <></>}
             <p>{entry.narration_result}</p>
           </div>
@@ -83,6 +86,9 @@ function App() {
       </div>
 
       <div className="page-column chat-column">
+        <div className="image-container">
+          <img src="https://wallpapercave.com/wp/wp4471362.jpg"/>
+        </div>
         <h2 style={{ marginBottom: '0px' }}>Proposals</h2>
         <div>
           {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} /> : proposals?.length ? <p>Loading...</p> : <p>No proposals.</p>}

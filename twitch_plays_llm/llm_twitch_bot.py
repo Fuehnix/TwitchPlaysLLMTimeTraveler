@@ -137,12 +137,14 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
             try:
                 #debug later
                 message_split = ctx.message.content.split()
-                user = message_split[1]
+                user = ''.join(filter(str.isalnum, message_split[1]))  # Remove non-alphanumeric characters
                 points = message_split[2]
-                self.viewer_points[user] += points
+                self.viewer_points[user] += int(points)
                 await self._send(f'{user} was given {points} points ')
             except KeyError:
                 await self._send(f'{user} does not exist')
+            except TypeError:
+                await self._send(f'Invalid input')
 
     # --- Other Methods ---
 
