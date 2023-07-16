@@ -78,7 +78,7 @@ class LlmGame:
 
     def restart(self):
         """Restarts the game by resetting the story generator and initializing a new turn."""
-        self.generator = StoryGenerator()
+        self.generator.reset()
         self._new_turn()
 
     async def add_proposal(self, story_action: str, author: str) -> int:

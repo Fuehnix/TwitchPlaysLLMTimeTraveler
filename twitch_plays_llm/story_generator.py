@@ -37,7 +37,7 @@ class StoryGenerator:
                 Please keep your response
                 1. limited to a paragraph 
                 2. write in the style of Critical Role D&D
-                3. Include a vague call to action for the player to act on, such as a messenger having a quest, or seeing someone in an alley, etc.
+                3. Include a vague call to action for the player to act on, such as a messenger having a quest, seeing someone in an alley, someone pleads for help, you encounter an unusual but mundane item, etc.
 
                 Story prompt: 
                 You are a human woman named Esther, a friendly bird obsessed artist and programmer. You have the power to transform into a bird and have time related abilities.  You have many voices in your head that control your actions, sometimes you call them your “Twitch”. """
@@ -150,8 +150,8 @@ class StoryGenerator:
         scene_description = self.past_story_entries[-1].narration_result
         return scene_description
 
-    def reset(self):
-        self.past_story_entries = [
+    def reset(self): 
+        initial_entry = [
             StoryEntry(
                 story_action='',
                 # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
@@ -160,3 +160,5 @@ class StoryGenerator:
                 narration_result= self.construct_initial_prompt(),
             )
         ]
+        self.past_story_entries = initial_entry
+        self.generate_image_task = asyncio.create_task(self._generate_narration_image(initial_entry))
