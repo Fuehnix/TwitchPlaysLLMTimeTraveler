@@ -2,7 +2,50 @@
 
 *A collaborative twitch-based choose-your-own-adventure game*
 
-Twitch Plays Llm a text-based choose-your-own-adventure game (ie. AI dungeon) set within a specific theme. For the time travel theme, the main character is a timem traveler vising a historic time period with the goal of altering some historic event. The game is played collaboratively through twitch chat. Read more about the vision for this project within [this document](https://docs.google.com/document/d/10TJ-P2iRqNIOWyQ5PRzcVnN7VBCprzPSB9CFGy_-eDo/edit).
+Twitch Plays Llm a text-based choose-your-own-adventure game (ie. AI dungeon) set within a specific theme. For the time theme, our game has integrated by default a story where the main character is a novelty version of our code jam host, TimeEnjoyed/Esther.  Esther is described as a bird enthusiast, artist, and programmer with time related superpowers.  She also has a number of "voices" in her head that control her actions that are referred to as her "Twitch". The game is played collaboratively through Twitch chat. Read more about the vision for this project within [this document](https://docs.google.com/document/d/10TJ-P2iRqNIOWyQ5PRzcVnN7VBCprzPSB9CFGy_-eDo/edit).
+
+## Commands:
+### User commands:
+```bash
+   !action <action> - Perform an action within the game
+   !say <message> - Say something within the game
+   !vote <user> - Vote for a user to perform an action
+   !leaderboard - Show the leaderboard
+   !points - Check your points
+   !help - Show this message
+```
+### Mod commands:
+```bash
+   !reset - resets the game context and history to the initial story message
+   !modvote - add a significant number of votes to a particular action so that it is chosen
+   !endvote - ends the vote countdown early
+```
+
+## Editing const variables:
+You will need to create a .env file (.env example is given in repo and defined below) to contain your API keys and other configuration information.
+
+In addition, in the twitch_plays_llm folder, config.py will contain certain const variables that you can choose to modify, such as:
+```bash
+vote_delay: int = 20 # timer countdown in seconds
+vote_points: int = 100  # points give per vote for all users
+action_cost: int = 100 # points required per action for all users
+vote_accumulation: int = 20 # points per voting round for all users
+points_earned_per_vote: int = 100 # points earned per vote for the user who is voted for
+```
+Default values are already provided and playtested.
+
+## Points system and gameplay:
+The intended gameplay is that twitch users will type !action and !say commands to propose actions to happen in reaction to gameplay prompts.  The actions will cost a small amount of points (maintained by the bot, with first actions being free), and players will vote for each other on who has the best/most interesting prompt.  Points are currently balanced to act more like a leaderboard system to encourage participation and cooperation.
+
+Points are acquired by:
+- A player votes for a different player's propmt (100)
+- A player's prompt is voted on by another player (100 per vote received)
+- A player's prompt is chosen to be the action that is used (100)
+- A player is in the list of active chatters while votes are happening (20 points per voting round)
+- A mod can give any number of points to a player
+
+Points are subtracted by:
+- A player submits an action (100)
 
 ## Development Setup
 
