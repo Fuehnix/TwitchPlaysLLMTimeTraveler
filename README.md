@@ -54,6 +54,12 @@ Points are subtracted by:
 
 This project is a standard Python package and can be installed via `pip`. View below for more specific instructions.
 
+### Requirements
+- Python 3.10.11 (other versions will likely run, but have not been verified)
+- Node.js (needed for javascript UI)
+- An OpenAI API key
+- Twitch bot oauth credentials
+
 ### Windows
 
 1. Set up a virtual environment:
@@ -66,8 +72,13 @@ This project is a standard Python package and can be installed via `pip`. View b
    ```powershell
    pip install -e ".[dev]"  # Install the local folder as a Python package
    ```
+   
+3. Install the Javascript dependencies by navigating to the the twitch-plays-llm folder and running the following:
+    ```bash
+    npm install
+    ```
 
-3. Setup the environment: Copy the `.env.example` file to `.env` and fill out the fields (feel free to ask someone for test credentials).
+4. Setup the environment: Copy the `.env.example` file to `.env` and fill out the fields (feel free to ask someone for test credentials).
    ```bash
    twitch_bot_username=_bot_name
    twitch_bot_client_id=oauth:abc123
@@ -76,11 +87,15 @@ This project is a standard Python package and can be installed via `pip`. View b
    vote_delay=4
    ```
 
-4. Run the executable:
+5. Run the executables:
    ```powershell
-   # Make sure to run beforehand: .venv\Scripts\activate
-   twitch-plays-llm run # run the executable
+   # Make sure to run beforehand: source .venv/bin/activate
+   twitch-plays-llm run # run the python executable in the general TwitchPlaysLLMTimeTraveler Folder
    twitch-plays-llm -h  # View the available commands
+   ```
+   To run the frontend WebUI, in a separate terminal, navigate to twitch-plays-llm folder and run:
+   ```powershell
+   npm start
    ```
 
 ### Linux / Mac
@@ -95,8 +110,13 @@ This project is a standard Python package and can be installed via `pip`. View b
    ```bash
    pip install -e '.[dev]'  # Install the local folder as a Python package
    ```
+   
+3. Install the Javascript dependencies by navigating to the the twitch-plays-llm folder and running the following:
+    ```bash
+    npm install
+    ```
 
-3. Setup the environment: Copy the `.env.example` file to `.env` and fill out the fields (feel free to ask someone for test credentials).
+4. Setup the environment: Copy the `.env.example` file to `.env` and fill out the fields (feel free to ask someone for test credentials).
    ```bash
    twitch_bot_username=_bot_name
    twitch_bot_client_id=oauth:abc123
@@ -105,12 +125,17 @@ This project is a standard Python package and can be installed via `pip`. View b
    vote_delay=4
    ```
 
-5. Run the executable:
+5. Run the executables:
    ```bash
    # Make sure to run beforehand: source .venv/bin/activate
-   twitch-plays-llm run # run the executable
+   twitch-plays-llm run # run the python executable in the general TwitchPlaysLLMTimeTraveler Folder
    twitch-plays-llm -h  # View the available commands
    ```
+   To run the frontend WebUI, in a separate terminal, navigate to twitch-plays-llm folder and run:
+   ```bash
+   npm start
+   ```
+
 
 ### Formatting and linting
 
