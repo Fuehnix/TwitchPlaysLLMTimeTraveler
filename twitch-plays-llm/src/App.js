@@ -33,18 +33,22 @@ function App() {
   useEffect(() => {
     async function fetchData() {
       const proposalsRes = await axios.get('http://localhost:9511/proposals');
-      setProposals(proposalsRes.data);
-
+  
+      // Sort the proposals by vote count in descending order
+      const sortedProposals = proposalsRes.data.sort((a, b) => b.vote - a.vote);
+      
+      setProposals(sortedProposals);
+  
       const storyHistoryRes = await axios.get('http://localhost:9511/story-history');
       setStoryHistory(storyHistoryRes.data);
-
+  
       const timeInfo = await axios.get('http://localhost:9511/vote-time-remaining')
       setTimeInfo(timeInfo.data);
     }
-
+  
     fetchData();  // Fetch data immediately on component mount
     const intervalId = setInterval(fetchData, 1000);  // Fetch data every second
-
+  
     // Clean up function: This will be run when the component is unmounted
     return () => clearInterval(intervalId);
   }, []);
@@ -90,8 +94,13 @@ function App() {
           <img src="https://wallpapercave.com/wp/wp4471362.jpg"/>
         </div>
         <h2 style={{ marginBottom: '0px' }}>Proposals</h2>
-        <div>
-          {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} /> : proposals?.length ? <p>Loading...</p> : <p>No proposals.</p>}
+        <div className="proposals">
+          {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} /> : proposals?.length ? 
+          <p>Loading...
+              <div className="loading-image-container">
+                <img src="https://raw.githubusercontent.com/Fuehnix/TwitchPlaysLLMTimeTraveler/main/twitch-plays-llm/public/gears.png"/>
+              </div>
+          </p> : <p>No proposals.</p>}
         </div>
         {timeInfo && proposals.map((proposal, index) => (
           <div key={index} style={{ position: 'relative' }} className="card response-card" ref={index === proposals.length - 1 ? proposalRef : null}>

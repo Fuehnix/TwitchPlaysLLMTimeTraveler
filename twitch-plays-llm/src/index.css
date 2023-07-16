@@ -37,10 +37,10 @@ body {
 }
 
 .page-column {
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   margin-top: auto; 
   max-height: calc(100vh - 40px);
   overflow-y: auto;
@@ -52,14 +52,15 @@ body {
 
 .chat-column {
   flex: 1;
+  overflow-y: auto;
 }
 
 .card,
 .response-card {
   background: var(--card-color);
-  border-radius: 20px;
-  margin-bottom: 20px;
-  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
   line-height: 1.5;
   transition: transform .2s;
 }
@@ -102,14 +103,8 @@ body {
   line-height: 20px;
 }
 
-/* Works on Firefox */
 .page-column::-webkit-scrollbar {
-  width: 0;  /* Hide scrollbar for Firefox */
-}
-
-/* Works on Chrome, Edge, and Safari */
-.page-column::-webkit-scrollbar {
-  width: 0;  /* Hide scrollbar for Chrome, Edge, and Safari */
+  width: 0; 
 }
 
 .image-container {
@@ -117,10 +112,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .image-container img {
+  width: 100%;
+  object-fit: contain;
+}
+
+.loading-image-container img {
   width: 100%;
   object-fit: contain;
 }

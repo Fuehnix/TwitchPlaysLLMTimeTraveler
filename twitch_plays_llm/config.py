@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     twitch_channel_name: str
     openai_api_key: str
 
-    vote_delay: int = 40
+    vote_delay: int = 30
     vote_points: int = 100  # points give per vote for all users
     action_cost: int = 100 # points required per action for all users
     vote_accumulation: int = 20 # points per voting round for all users
