@@ -38,11 +38,11 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         print(f'Logged in as | {self.nick}')
         print(f'User id is | {self.user_id}')
         self.channel = self.get_channel(config.twitch_channel_name)
-        await self.channel.send(f'Story: {self.game.initial_story_message}')
+        await self._send_chunked(f'Story: {self.game.initial_story_message}')
 
     @commands.command()
     async def action(self, ctx: commands.Context):
-        """Trigger for user to perofrm an action within the game"""
+        """Trigger for user to perform an action within the game"""
         story_action = self._extract_message_text(ctx)
         user = ctx.author.name
         if user not in self.viewer_points:
@@ -75,12 +75,31 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
         await self._vote(ctx)
 
     @commands.command()
+    async def leaderboard(self, ctx: commands.Context):
+        leaderboard = [(user, points) for user, points in self.viewer_points.items()]
+        leaderboard.sort(key=lambda x: x[1], reverse=True)  # Sort the leaderboard by points in descending order
+        top_5 = leaderboard[:5]  # Get the top 5 users
+
+        leaderboard_text = "Top 5 Users:\n"
+        for i, (user, points) in enumerate(top_5, start=1):
+            leaderboard_text += f" {i}. {user}: {points} | \n"
+
+        await ctx.send(leaderboard_text)
+
+    @commands.command()
     async def help(self, ctx: commands.Context):
         """Help command"""
         await self._send(
-            'Welcome to the Storyteller! The goal of this game is to collaboratively create a story. At each turn, the user says an action and the bot replies with a short continuation of the story outlining the events that happen in the story based on the action the user performed. The user can then vote on the next action to perform. The bot will then continue the story based on the action with the most votes. To perform an action, type "!action <action>". To say something, type "!say <message>". To vote on the next action, type "!vote <number>".'
+            """
+            Commands:
+            !action <action> - Perform an action within the game
+            !say <message> - Say something within the game
+            !vote <user> - Vote for a user to perform an action
+            !leaderboard - Show the leaderboard
+            !points - Check your points
+            !help - Show this message"""
         )
-
+    
     # --- MOD COMMANDS ---
 
     @commands.command()
@@ -91,7 +110,7 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
             return
 
         self.game.restart()
-        await self._send(f'Game has been reset | {self.game.initial_story_message}')
+        await self._send_chunked(f'Game has been reset | {self.game.initial_story_message}')
 
     @commands.command()
     async def modvote(self, ctx: commands.Context):
@@ -106,18 +125,6 @@ class LlmTwitchBot(commands.Bot, LlmGameHooks):
             await self._send(ctx.author.name + ', You are not a mod')
             return
         self.game.end_vote()
-
-    @commands.command()
-    async def leaderboard(self, ctx: commands.Context):
-        leaderboard = [(user, points) for user, points in self.viewer_points.items()]
-        leaderboard.sort(key=lambda x: x[1], reverse=True)  # Sort the leaderboard by points in descending order
-        top_5 = leaderboard[:5]  # Get the top 5 users
-
-        leaderboard_text = "Top 5 Users:\n"
-        for i, (user, points) in enumerate(top_5, start=1):
-            leaderboard_text += f"{i}. {user}: {points}\n"
-
-        await ctx.send(leaderboard_text)
 
     @commands.command()
     async def givepoints(self, ctx: commands.Context):

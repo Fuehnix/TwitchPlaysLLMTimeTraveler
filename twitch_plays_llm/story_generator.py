@@ -13,16 +13,42 @@ class StoryGenerator:
                 story_action='',
                 # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
                 # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
-                narration_result="You're a jovial gnome bard, renowned across the taverns of Baldur's Gate for your quick wit and sparkling lute melodies. It's the Year of the Spitting Triton, and you find yourself in the bustling city market, surrounded by a cacophony of traders, minstrels, and townsfolk. Suddenly, a bedraggled messenger races towards you - he carries a message ",
-                # narration_result= self.construct_initial_prompt()
+                narration_result=
+                "In the heart of the soot-covered city of Cogspeak, where towering edifices of "
+                "brass and iron belch steam into the clouded sky, resides Esther, a blend of "
+                "artist, programmer, and aviary admirer. Her living quarters, an entanglement of "
+                "refurbished clockwork machinery and assorted avian-inspired artworks, oscillates "
+                "between the symphony of grinding gears and the harmonious chirping of caged "
+                "mechanical birds. Esther’s world is steeped in Steampunk charm, yet it brims "
+                "with the arcane; she wields the power to morph into any bird she desires, an "
+                "ability she often uses for swift travel across the sprawling metropolis or for "
+                "surreptitious spying on the city's upper echelons. In the maelstrom of her mind, "
+                "a multitude of voices echoes - a chorus she lovingly dubs her 'Twitch'. These "
+                "voices command her actions, guiding her through time-warping exploits that not "
+                "only defy the standard tick-tock flow of her world but also have a profound "
+                "impact on Cogspeak’s timeline, with every decision setting off a chain of events "
+                "that ripple through her reality. One balmy evening, as Esther was transforming "
+                "back to her human form after an exhilarating flight across Cogspeak, a "
+                "thunderous tremor rocked the city, followed by the eerie whine of a machine in "
+                "duress. When she looked out, she saw a pillar of ghostly green light shooting "
+                "skywards from the center of the city, a place notoriously known as the "
+                "Clocktower Citadel - the heart of time itself. In the aftermath, the rhythmic "
+                "ticking that underpinned life in Cogspeak fell silent, and time stood eerily "
+                "still. Soon, her 'Twitch' was overwhelmed with pleas for help from terrified "
+                "cityfolk frozen in time. Esther knew she had to restore the Citadel's Clockwork "
+                "Heart to set time in motion again. Guided by the cacophony of her Twitch, she "
+                "embarked on a perilous quest through a city locked in a timeless prison, "
+                "carrying the hope of every soul entrapped within Cogspeak."
             )
         ]
 
     def construct_initial_prompt(self):
+        """Not used
+        construct initial prompt for story generation"""
         rules = """Create a writing prompt to start an RPG text adventure game.  Adhere to the following rules:
                     1. The story should take place in Baldur's Gate from Dungeons and Dragons' Forgotten Realms.
-                    2 You should describe the player's characteristics, where they are, what time period they are in, and what surrounds them.
-                    3. Keep it fun and light hearted. This isn't for a novel, it's for a game on Twitch.
+                    2  You should describe the player's characteristics, where they are, what time period they are in, and what surrounds them.
+                    3. Keep it fun and allow people to be creative.
                     4. Use the 2nd person perspective.
                     5. The prompt should be only 3 - 5 sentences long."""
         messages = [{ 'role': 'user',
