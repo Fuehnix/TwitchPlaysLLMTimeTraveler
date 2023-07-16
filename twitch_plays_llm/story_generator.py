@@ -150,15 +150,13 @@ class StoryGenerator:
         scene_description = self.past_story_entries[-1].narration_result
         return scene_description
 
-    def reset(self): 
-        initial_entry = [
-            StoryEntry(
-                story_action='',
-                # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
-                # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
-                # narration_result="""In the heart of the iron-clad city of Gearford, within the cloud-shrouded aeries of the Cog Tower, you, Esther, find solace among the thrumming machinations and whistling steam pipes, your fingers dancing across the canvas and keyboard alike. From the corner of your eye, you witness the blinking gears of your ornithopter clock, its rhythmic tick-tocking a constant reminder of your temporal prowess. Yet, the whispering voices in your mind, your loyal Twitch, sing in discordant harmony, guiding, prodding, or sometimes even commanding you. As you shape-shift into a shimmering bird and take flight, the metropolis sprawls beneath you, a mechanical marvel of brass and steam. Below, in the twisting alleyways, you catch sight of a frantic messenger being accosted by clockwork constables, his desperate eyes seemingly pleading for your intervention. It seems that Gearford, once again, requires the touch of your wing and the turn of your gear."""
-                narration_result= self.construct_initial_prompt(),
-            )
-        ]
-        self.past_story_entries = initial_entry
+    def reset(self):
+        initial_entry = StoryEntry(
+            story_action='',
+            # narration_result="You are a middle aged man in downtown Chicago, 1910. You're in a steak restaurant talking to the waiter as you just sat down.",
+            # narration_result="You are a quirky time travelling inventor with a handlebar mustache and a knack for mischievous inventions. Blinking your eyes open, you realize you have accidentally landed in the year 1875, right in the heart of a bustling Wild West town. Dusty roads, saloons, and cowboys on horseback surround you, while the sound of piano music drifts through the air.",
+            # narration_result="""In the heart of the iron-clad city of Gearford, within the cloud-shrouded aeries of the Cog Tower, you, Esther, find solace among the thrumming machinations and whistling steam pipes, your fingers dancing across the canvas and keyboard alike. From the corner of your eye, you witness the blinking gears of your ornithopter clock, its rhythmic tick-tocking a constant reminder of your temporal prowess. Yet, the whispering voices in your mind, your loyal Twitch, sing in discordant harmony, guiding, prodding, or sometimes even commanding you. As you shape-shift into a shimmering bird and take flight, the metropolis sprawls beneath you, a mechanical marvel of brass and steam. Below, in the twisting alleyways, you catch sight of a frantic messenger being accosted by clockwork constables, his desperate eyes seemingly pleading for your intervention. It seems that Gearford, once again, requires the touch of your wing and the turn of your gear."""
+            narration_result= self.construct_initial_prompt(),
+        )
+        self.past_story_entries = [initial_entry]
         self.generate_image_task = asyncio.create_task(self._generate_narration_image(initial_entry))
