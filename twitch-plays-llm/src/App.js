@@ -28,6 +28,7 @@ function App() {
   const [timeInfo, setTimeInfo] = useState(null);
   const proposalRef = useRef(null); // Ref for scrolling
   const storyRef = useRef(null);   // Ref for scrolling
+  const [image, setImage] = useState(null);
 
   // Use useEffect to fetch data from server on mount and every second
   useEffect(() => {
@@ -44,6 +45,9 @@ function App() {
   
       const timeInfo = await axios.get('http://localhost:9511/vote-time-remaining')
       setTimeInfo(timeInfo.data);
+
+      const imageRes = await axios.post('http://localhost:9511/generate-image');
+      setImage(imageRes.data.image);
     }
   
     fetchData();  // Fetch data immediately on component mount
@@ -58,7 +62,7 @@ function App() {
     storyRef.current?.scrollIntoView({ behavior: 'smooth' });  // Scroll to bottom of story
   }, [proposals, storyHistory]);  // Trigger when proposals or storyHistory changes
 
-  
+
   // Define badge style
   const badgeStyle = {
     display: "inline-block",
@@ -87,11 +91,12 @@ function App() {
             <p>{entry.narration_result}</p>
           </div>
         ))}
+        {image && <img src={image} alt="Generated scene" />}
       </div>
 
       <div className="page-column chat-column">
         <div className="image-container">
-          <img src="https://wallpapercave.com/wp/wp4471362.jpg"/>
+          <img src="https://wallpapercave.com/wp/wp4471362.jpg" />
         </div>
         <h2 style={{ marginBottom: '0px' }}>Proposals</h2>
         <div className="proposals">

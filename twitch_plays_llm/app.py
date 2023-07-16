@@ -2,6 +2,7 @@ import asyncio
 import time
 
 from typing import List, Optional
+import openai
 
 from pydantic import BaseModel
 from fastapi import FastAPI
@@ -9,6 +10,7 @@ from fastapi import FastAPI
 from .llm_game import LlmGame
 from .llm_twitch_bot import LlmTwitchBot
 from .models import Proposal, StoryEntry
+from .story_generator import StoryGenerator
 from .config import config
 
 
@@ -67,3 +69,22 @@ def get_story_history() -> Optional[TimeRemainingResponse]:
         seconds_remaining=game.next_count_vote_time - time.time(),
         total_seconds=config.vote_delay
     )
+
+
+@app.post("/generate-image")
+async def generate_image():
+    generator = StoryGenerator()
+
+    # Generate a description of the current scene
+    scene_description = await generator.generate_image_prompt()
+
+    # Send this description to the DALL-E API
+    loop = asyncio.get_event_loop()
+    response = await loop.run_in_executor(None, lambda: openai.Image.create(
+        prompt=scene_description,
+        n=1,
+        size="1024x1024"
+    ))
+
+    # Return the generated image
+    return {"image": response['data'][0]['url']}
