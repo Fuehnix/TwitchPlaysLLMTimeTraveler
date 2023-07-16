@@ -1,23 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 
-const ProgressBar = ({ count, total, color }) => {
+// ProgressBar component displays a progress bar 
+// given the current count, total, and color
+const ProgressBar = ({ count, total }) => {
   const percentage = total > 0 ? (count / total) * 100 : 0;
-  console.log('Foo', count, total);
+  const red = percentage < 50 ? 255 : Math.round(510 - 5.1 * percentage);
+  const green = percentage > 50 ? 255 : Math.round(5.1 * percentage);
+  const color = `rgb(${red},${green},0)`;
 
+  // Return progress bar with calculated percentage and color
   return (
     <div className="vote-bar">
-      <div className="vote-bar-progress" style={{ width: `${percentage}%`, backgroundColor: color ?? '#00b1e2' }} />
+      <div className="vote-bar-progress" style={{ width: `${percentage}%`, backgroundColor: color }} />
       <div className="vote-bar-text">{`${percentage.toFixed(2)}% (${count} out of ${total})`}</div>
     </div>
   );
 };
 
+
+
+// Main App component
 function App() {
+  // Main App component
   const [proposals, setProposals] = useState([]);
   const [storyHistory, setStoryHistory] = useState([]);
   const [timeInfo, setTimeInfo] = useState(null);
+  const proposalRef = useRef(null);  // Ref for scrolling
 
+  // Use useEffect to fetch data from server on mount and every second
   useEffect(() => {
     async function fetchData() {
       const proposalsRes = await axios.get('http://localhost:9511/proposals');
@@ -37,6 +48,11 @@ function App() {
     return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {  // New useEffect for scrolling
+    proposalRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [proposals]);
+  
+  // Define badge style
   const badgeStyle = {
     display: "inline-block",
     padding: ".2em .6em .3em",
@@ -52,6 +68,7 @@ function App() {
     margin: "0 5px"
   };
 
+  // Calculate total votes
   const totalVotes = Math.max(1, proposals.map(x => x.vote).reduce((a, b) => a + b, 0));
   return (
     <div className="site-container">
@@ -68,10 +85,10 @@ function App() {
       <div className="page-column chat-column">
         <h2 style={{ marginBottom: '0px' }}>Proposals</h2>
         <div>
-          {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} color='#eb9500' /> : proposals?.length ? <p>Loading...</p> : <p>No proposals.</p>}
+          {timeInfo ? <ProgressBar count={timeInfo.seconds_remaining} total={timeInfo.total_seconds} /> : proposals?.length ? <p>Loading...</p> : <p>No proposals.</p>}
         </div>
         {timeInfo && proposals.map((proposal, index) => (
-          <div key={index} style={{ position: 'relative' }} className="card response-card">
+          <div key={index} style={{ position: 'relative' }} className="card response-card" ref={index === proposals.length - 1 ? proposalRef : null}>
             <div>
               <p><b>{index + 1}: </b>{proposal.message}</p>
             </div>
