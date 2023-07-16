@@ -1,5 +1,8 @@
 # Twitch Plays Llm
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Fuehnix/TwitchPlaysLLMTimeTraveler/main/twitch-plays-llm/public/cybertime.png" />
+</p>
 *A collaborative twitch-based choose-your-own-adventure game*
 
 Twitch Plays Llm a text-based choose-your-own-adventure game (ie. AI dungeon) set within a specific theme. For the time theme, our game has integrated by default a story where the main character is a novelty version of our code jam host, TimeEnjoyed/Esther.  Esther is described as a bird enthusiast, artist, and programmer with time related superpowers.  She also has a number of "voices" in her head that control her actions that are referred to as her "Twitch". The game is played collaboratively through Twitch chat. Read more about the vision for this project within [this document](https://docs.google.com/document/d/10TJ-P2iRqNIOWyQ5PRzcVnN7VBCprzPSB9CFGy_-eDo/edit).
