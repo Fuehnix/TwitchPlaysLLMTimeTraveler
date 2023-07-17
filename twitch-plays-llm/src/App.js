@@ -148,9 +148,7 @@ function ImageContainer({ src, isLoading }) {
 
 function Spinner() {
   // CSS defines all the animations on these divs
-  return <div class="lds-spinner">
-    {Array(12).fill(<div></div>)}
-  </div>;
+  return <img src="https://raw.githubusercontent.com/Fuehnix/TwitchPlaysLLMTimeTraveler/main/twitch-plays-llm/public/cybertime.png" className='lds-spinner-2'/>;
 }
 
 export default App;
