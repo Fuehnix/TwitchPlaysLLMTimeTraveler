@@ -12,7 +12,7 @@ Twitch Plays Llm a text-based choose-your-own-adventure game (ie. AI dungeon) se
 ```bash
    !action <action> - Perform an action within the game
    !say <message> - Say something within the game
-   !vote <user> - Vote for a user to perform an action
+   !vote <num> - Vote for a numbered prompt to perform an action
    !leaderboard - Show the leaderboard
    !points - Check your points
    !help - Show this message
@@ -22,6 +22,7 @@ Twitch Plays Llm a text-based choose-your-own-adventure game (ie. AI dungeon) se
    !reset - resets the game context and history to the initial story message
    !modvote - add a significant number of votes to a particular action so that it is chosen
    !endvote - ends the vote countdown early
+   !givepoints <user> <num> - gives the user a number of specified points
 ```
 
 ## Editing const variables:
